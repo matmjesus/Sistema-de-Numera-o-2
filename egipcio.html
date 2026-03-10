@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full bg-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escriba Digital | Calculadora Egípcia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&family=Noto+Sans+Egyptian+Hieroglyphs&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --egyptian-blue: #1e3a8a;
+      --egyptian-gold: #c5a059;
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, .font-cinzel { font-family: 'Cinzel', serif; }
+    .hieroglyph-font { font-family: 'Noto Sans Egyptian Hieroglyphs', serif; }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    /* TOKENS - TAMANHO UNIFORME */
+    .glyph-token {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: grab;
+      border: 4px solid #cbd5e1;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 1.25rem;
+      background-color: white;
+      flex-shrink: 0;
+    }
+
+    .glyph-token span.hieroglyph-font {
+      font-size: 3rem;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .palette-token:hover {
+      transform: translateY(-4px);
+      border-color: var(--egyptian-gold);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropped-token {
+      background-color: #fef3c7; 
+      border-color: #d97706;
+      color: #92400e;
+    }
+
+    .dropped-token:hover {
+      background-color: #fee2e2;
+      border-color: #dc2626;
+      color: #b91c1c;
+      transform: scale(0.95);
+    }
+
+    /* GRID DA ÁREA DE QUEDA (EGÍPCIO -> DECIMAL) */
+    .drop-zone {
+      background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+      background-size: 20px 20px;
+      min-height: 300px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 1rem;
+      align-content: start;
+      justify-items: center;
+    }
+
+    /* ESTILO PARA OS SÍMBOLOS NA TELA DE CONVERSÃO (DECIMAL -> EGÍPCIO) */
+    #egyptian-result {
+      display: flex;
+      flex-wrap: wrap; /* CORREÇÃO: Faz os símbolos pularem linha */
+      gap: 10px;
+      justify-content: center;
+      width: 100%;
+      max-width: 100%; /* Garante que não ultrapasse o card */
+      word-break: break-all;
+    }
+
+    .drop-zone.drag-over {
+      background-color: rgba(197, 160, 89, 0.05);
+      border-color: var(--egyptian-gold);
+    }
+  </style>
+</head>
+<body class="h-full text-slate-800">
+
+  <div class="max-w-6xl mx-auto min-h-screen flex flex-col px-6 py-10">
+    
+    <header class="text-center mb-12">
+      <h1 class="text-5xl md:text-6xl font-bold text-slate-950 mb-4 tracking-tight">Escriba Digital</h1>
+      <p class="text-slate-600 text-lg">Decifre a matemática do Antigo Egito</p>
+    </header>
+
+    <section id="home-screen" class="flex flex-col md:flex-row items-center justify-center gap-8 max-w-4xl mx-auto w-full py-10">
+      <button onclick="showScreen('decimal')" class="group glass-card w-full p-12 rounded-[2.5rem] text-center hover:border-blue-500 transition-all duration-300 shadow-xl hover:shadow-blue-100">
+        <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-white mx-auto mb-6 group-hover:scale-110 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Decimal → Egípcio</h2>
+        <p class="text-slate-500">Transforme números em arte</p>
+      </button>
+
+      <button onclick="showScreen('egyptian')" class="group glass-card w-full p-12 rounded-[2.5rem] text-center hover:border-amber-600 transition-all duration-300 shadow-xl hover:shadow-amber-100">
+        <div class="w-20 h-20 bg-amber-600 rounded-3xl flex items-center justify-center text-white mx-auto mb-6 group-hover:scale-110 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Egípcio → Decimal</h2>
+        <p class="text-slate-500">Calcule símbolos sagrados</p>
+      </button>
+    </section>
+
+    <section id="decimal-screen" class="hidden space-y-6">
+      <button onclick="showScreen('home')" class="flex items-center font-bold text-slate-500 hover:text-blue-600 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg> Início
+      </button>
+      <div class="glass-card p-10 rounded-[2rem] max-w-4xl mx-auto shadow-2xl overflow-hidden">
+        <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-4 text-center">Digite o valor numérico</label>
+        <input type="number" id="decimal-input" placeholder="Ex: 3452" 
+          class="w-full text-5xl font-bold p-6 rounded-2xl border-4 border-slate-100 focus:border-blue-500 text-center transition-all outline-none mb-8">
+        
+        <div id="egyptian-result" class="hieroglyph-font text-5xl md:text-6xl text-amber-800 leading-relaxed"></div>
+      </div>
+    </section>
+
+    <section id="egyptian-screen" class="hidden space-y-6">
+      <button onclick="showScreen('home')" class="flex items-center font-bold text-slate-500 hover:text-amber-600 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg> Início
+      </button>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div class="lg:col-span-1">
+          <div class="glass-card p-6 rounded-3xl sticky top-8 shadow-lg">
+            <h3 class="font-black text-xs uppercase tracking-tighter text-slate-400 mb-6 text-center">Clique para Adicionar</h3>
+            <div id="palette" class="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 justify-items-center"></div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-3 space-y-6">
+          <div class="glass-card p-8 rounded-[2rem] bg-white shadow-xl min-h-[450px] flex flex-col">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-50 pb-4">
+              <h3 class="font-cinzel font-bold text-amber-800 text-xl tracking-tight">Canteiro de Obras</h3>
+              <button onclick="clearAll()" class="bg-red-50 text-red-600 px-4 py-2 rounded-xl font-bold text-xs uppercase hover:bg-red-600 hover:text-white transition-all">Limpar</button>
+            </div>
+            <div id="drop-zone" class="drop-zone border-4 border-dashed border-slate-100 rounded-[1.5rem] p-6 flex-grow"></div>
+          </div>
+
+          <div class="bg-slate-900 rounded-[2rem] p-10 text-white shadow-2xl flex flex-col md:flex-row justify-between items-center gap-6">
+            <div>
+              <p class="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">Valor Calculado</p>
+              <div id="decimal-result-value" class="text-7xl font-bold text-amber-500">0</div>
+            </div>
+            <div class="text-center md:text-right">
+                <p class="text-slate-500 text-xs font-bold uppercase mb-2">Hieróglifos Usados</p>
+                <div id="calc-count" class="text-xl font-cinzel text-slate-300 italic">0 símbolos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const numerals = [
+      { value: 1000000, symbol: '𓁨', label: '1M' },
+      { value: 100000, symbol: '𓆐', label: '100K' },
+      { value: 10000, symbol: '𓂭', label: '10K' },
+      { value: 1000, symbol: '𓆼', label: '1K' },
+      { value: 100, symbol: '𓍢', label: '100' },
+      { value: 10, symbol: '𓎆', label: '10' },
+      { value: 1, symbol: '𓏺', label: '1' }
+    ];
+
+    let droppedItems = [];
+
+    const palette = document.getElementById('palette');
+    numerals.forEach(n => {
+      const div = document.createElement('div');
+      div.className = "glyph-token palette-token shadow-sm";
+      div.draggable = true;
+      div.innerHTML = `<span class="hieroglyph-font">${n.symbol}</span><span class="text-[10px] font-black mt-1 opacity-50">${n.label}</span>`;
+      div.onclick = () => { droppedItems.push(n); render(); };
+      div.addEventListener('dragstart', (e) => e.dataTransfer.setData('application/json', JSON.stringify(n)));
+      palette.appendChild(div);
+    });
+
+    function showScreen(id) {
+      ['home-screen', 'decimal-screen', 'egyptian-screen'].forEach(s => document.getElementById(s).classList.add('hidden'));
+      document.getElementById(id + '-screen').classList.remove('hidden');
+      window.scrollTo(0,0);
+    }
+
+    document.getElementById('decimal-input').oninput = (e) => {
+      let val = parseInt(e.target.value) || 0;
+      // Limite para evitar travamentos com números absurdos
+      if (val > 99999999) val = 99999999; 
+      
+      let res = "";
+      let temp = val;
+      numerals.forEach(n => {
+        const count = Math.floor(temp / n.value);
+        // Usando um loop para os símbolos ficarem como caracteres individuais
+        res += n.symbol.repeat(count);
+        temp %= n.value;
+      });
+      document.getElementById('egyptian-result').textContent = res;
+    };
+
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); };
+    dropZone.ondragleave = () => dropZone.classList.remove('drag-over');
+    dropZone.ondrop = (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      droppedItems.push(data);
+      render();
+    };
+
+    function render() {
+      droppedItems.sort((a, b) => b.value - a.value);
+      dropZone.innerHTML = "";
+      droppedItems.forEach((item, idx) => {
+        const el = document.createElement('div');
+        el.className = "glyph-token dropped-token";
+        el.innerHTML = `<span class="hieroglyph-font">${item.symbol}</span><span class="text-[10px] font-black mt-1 opacity-70">${item.label}</span>`;
+        el.onclick = () => { droppedItems.splice(idx, 1); render(); };
+        dropZone.appendChild(el);
+      });
+      const total = droppedItems.reduce((acc, curr) => acc + curr.value, 0);
+      document.getElementById('decimal-result-value').textContent = total.toLocaleString('pt-BR');
+      document.getElementById('calc-count').textContent = `${droppedItems.length} símbolos`;
+    }
+
+    function clearAll() { droppedItems = []; render(); }
+  </script>
+</body>
+</html>

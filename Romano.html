@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full bg-stone-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legionário Matemático | Sistema Romano</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --roma-crimson: #991b1b;
+      --roma-gold: #fbbf24;
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, .font-cinzel { font-family: 'Cinzel', serif; }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(214, 211, 209, 0.5);
+    }
+
+    .roman-char {
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 2.5rem;
+      color: var(--roma-crimson);
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.2s;
+      display: inline-block;
+      line-height: 1;
+    }
+    .roman-char:active { cursor: grabbing; }
+
+    .construction-zone {
+      border: 3px double #d6d3d1;
+      padding: 40px;
+      border-radius: 1.5rem;
+      min-height: 200px;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      gap: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .construction-zone.drag-over {
+      border-color: var(--roma-crimson);
+      background-color: #fef2f2;
+    }
+
+    .construction-zone.invalid {
+      animation: shake 0.4s ease-in-out;
+      border-color: #ef4444;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .roman-result-box {
+      font-family: 'Cinzel', serif;
+      font-size: 4rem;
+      color: var(--roma-crimson);
+    }
+
+    /* Estilo para o item sendo arrastado visualmente na lista de baixo */
+    .inserted-symbol {
+      cursor: pointer;
+      position: relative;
+    }
+    .inserted-symbol:hover::after {
+      content: '×';
+      position: absolute;
+      top: -10px;
+      right: -5px;
+      font-size: 1rem;
+      color: red;
+    }
+  </style>
+</head>
+<body class="h-full text-stone-800">
+
+  <div class="max-w-6xl mx-auto min-h-screen flex flex-col px-6 py-10">
+    
+    <header class="text-center mb-12">
+      <h1 class="text-5xl md:text-6xl font-black text-stone-900 mb-2 tracking-tighter">Legionário Matemático</h1>
+      <p class="text-stone-500 text-lg font-cinzel italic">Senatus Populusque Romanus</p>
+    </header>
+
+    <section id="home-screen" class="flex flex-col md:flex-row items-center justify-center gap-8 max-w-4xl mx-auto w-full py-10">
+      <button onclick="showScreen('decimal')" class="group glass-card w-full p-12 rounded-[2.5rem] text-center hover:border-red-600 transition-all shadow-xl">
+        <div class="w-20 h-20 bg-red-800 rounded-3xl flex items-center justify-center text-white mx-auto mb-6 group-hover:rotate-12 transition-transform">
+          <span class="text-3xl font-bold">123</span>
+        </div>
+        <h2 class="text-3xl font-bold text-stone-900 mb-2">Arábico → Romano</h2>
+      </button>
+
+      <button onclick="showScreen('roman')" class="group glass-card w-full p-12 rounded-[2.5rem] text-center hover:border-amber-500 transition-all shadow-xl">
+        <div class="w-20 h-20 bg-amber-600 rounded-3xl flex items-center justify-center text-white mx-auto mb-6 group-hover:scale-110 transition-transform">
+          <span class="text-4xl font-cinzel font-bold">SPQR</span>
+        </div>
+        <h2 class="text-3xl font-bold text-stone-900 mb-2">Construtor Livre</h2>
+      </button>
+    </section>
+
+    <section id="decimal-screen" class="hidden space-y-6">
+      <button onclick="showScreen('home')" class="font-bold text-stone-400 hover:text-red-700">← Voltar</button>
+      <div class="glass-card p-12 rounded-[3rem] max-w-2xl mx-auto text-center shadow-2xl">
+        <input type="number" id="decimal-input" min="1" max="3999" placeholder="0" class="w-full text-7xl font-bold p-6 rounded-2xl border-4 border-stone-50 focus:border-red-500 text-center outline-none mb-12">
+        <div id="roman-text-result" class="roman-result-box">---</div>
+      </div>
+    </section>
+
+    <section id="roman-screen" class="hidden space-y-6">
+      <button onclick="showScreen('home')" class="font-bold text-stone-400 hover:text-amber-700">← Voltar</button>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div class="lg:col-span-1">
+          <div class="glass-card p-6 rounded-3xl text-center shadow-lg border-t-4 border-red-700">
+            <h3 class="text-xs font-black uppercase text-stone-400 mb-6">Símbolos Disponíveis</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div draggable="true" ondragstart="drag(event, 'I')" class="roman-char">I</div>
+              <div draggable="true" ondragstart="drag(event, 'V')" class="roman-char">V</div>
+              <div draggable="true" ondragstart="drag(event, 'X')" class="roman-char">X</div>
+              <div draggable="true" ondragstart="drag(event, 'L')" class="roman-char">L</div>
+              <div draggable="true" ondragstart="drag(event, 'C')" class="roman-char">C</div>
+              <div draggable="true" ondragstart="drag(event, 'D')" class="roman-char">D</div>
+              <div draggable="true" ondragstart="drag(event, 'M')" class="roman-char">M</div>
+            </div>
+            <button onclick="clearRoman()" class="mt-8 text-xs font-bold text-red-500 uppercase tracking-widest">Limpar Tudo</button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-3">
+          <div class="glass-card p-10 rounded-[3rem] min-h-[500px] flex flex-col justify-between shadow-2xl bg-stone-50/30">
+            <div>
+              <p class="text-center text-stone-400 text-[10px] font-bold uppercase mb-4">Solte aqui (antes, entre ou depois)</p>
+              <div id="roman-construction-zone" class="construction-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')">
+                </div>
+              <p id="error-msg" class="text-center text-red-500 text-xs mt-4 font-bold h-4"></p>
+            </div>
+            
+            <div class="bg-red-900 rounded-[2rem] p-10 text-white flex justify-between items-center shadow-2xl">
+              <div>
+                <p class="text-red-300 text-[10px] font-black uppercase">Valor Total</p>
+                <div id="roman-total" class="text-7xl font-bold text-amber-400">0</div>
+              </div>
+              <div class="text-right text-xs text-red-200">
+                <p>I, X, C, M: Máx 3x</p>
+                <p>V, L, D: Não repetem</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    let currentSymbols = [];
+    const values = { 'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000 };
+
+    function showScreen(id) {
+      document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(id + '-screen').classList.remove('hidden');
+    }
+
+    // --- LOGICA DECIMAL -> ROMANO ---
+    function convertToRoman(num) {
+      if (num <= 0 || num > 3999) return "---";
+      const lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+      let roman = '';
+      for (let i in lookup) {
+        while (num >= lookup[i]) { roman += i; num -= lookup[i]; }
+      }
+      return roman;
+    }
+
+    document.getElementById('decimal-input').oninput = (e) => {
+      document.getElementById('roman-text-result').textContent = convertToRoman(parseInt(e.target.value) || 0);
+    };
+
+    // --- LOGICA DRAG & DROP POSICIONAL ---
+    function drag(ev, symbol) {
+      ev.dataTransfer.setData("symbol", symbol);
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+      ev.currentTarget.classList.add('drag-over');
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const zone = document.getElementById('roman-construction-zone');
+      zone.classList.remove('drag-over');
+      
+      const symbol = ev.dataTransfer.getData("symbol");
+      if (!symbol) return;
+
+      // 1. Calcular a posição de inserção baseada no mouse
+      const children = Array.from(zone.querySelectorAll('.inserted-symbol'));
+      let insertIndex = children.length;
+
+      for (let i = 0; i < children.length; i++) {
+        const rect = children[i].getBoundingClientRect();
+        const midPoint = rect.left + rect.width / 2;
+        if (ev.clientX < midPoint) {
+          insertIndex = i;
+          break;
+        }
+      }
+
+      // 2. Tentar inserir temporariamente para validar
+      const testArray = [...currentSymbols];
+      testArray.splice(insertIndex, 0, symbol);
+
+      const validation = validateSequence(testArray);
+      
+      if (validation.valid) {
+        currentSymbols = testArray;
+        renderSymbols();
+        document.getElementById('error-msg').textContent = "";
+      } else {
+        zone.classList.add('invalid');
+        document.getElementById('error-msg').textContent = validation.msg;
+        setTimeout(() => zone.classList.remove('invalid'), 400);
+      }
+    }
+
+    // --- VALIDAÇÃO DE REGRAS ROMANAS ---
+    function validateSequence(arr) {
+      // Regra 1: Repetição de V, L, D
+      const counts = { 'V': 0, 'L': 0, 'D': 0 };
+      for (let s of arr) {
+        if (counts[s] !== undefined) {
+          counts[s]++;
+          if (counts[s] > 1) return { valid: false, msg: `Símbolo ${s} não pode ser repetido!` };
+        }
+      }
+
+      // Regra 2: Máximo 3x consecutivas (I, X, C, M)
+      let consecutive = 1;
+      for (let i = 1; i < arr.length; i++) {
+        if (arr[i] === arr[i-1]) {
+          consecutive++;
+          if (consecutive > 3) return { valid: false, msg: "Máximo de 3 repetições consecutivas!" };
+        } else {
+          consecutive = 1;
+        }
+      }
+
+      // Regra 3: Ordem de Subtração
+      for (let i = 0; i < arr.length - 1; i++) {
+        const curr = values[arr[i]];
+        const next = values[arr[i+1]];
+        if (next > curr) {
+          // Apenas I, X e C subtraem
+          if (!['I', 'X', 'C'].includes(arr[i])) return { valid: false, msg: "Este símbolo não pode subtrair!" };
+          // I subtrai V/X, X subtrai L/C, C subtrai D/M
+          if (arr[i] === 'I' && next > 10) return { valid: false, msg: "I só subtrai V ou X!" };
+          if (arr[i] === 'X' && next > 100) return { valid: false, msg: "X só subtrai L ou C!" };
+        }
+      }
+
+      return { valid: true };
+    }
+
+    // --- CÁLCULO E RENDERIZAÇÃO ---
+    function calculateTotal(arr) {
+      let total = 0;
+      for (let i = 0; i < arr.length; i++) {
+        const curr = values[arr[i]];
+        const next = i + 1 < arr.length ? values[arr[i+1]] : 0;
+        if (next > curr) {
+          total += (next - curr);
+          i++;
+        } else {
+          total += curr;
+        }
+      }
+      return total;
+    }
+
+    function renderSymbols() {
+      const zone = document.getElementById('roman-construction-zone');
+      zone.innerHTML = "";
+      
+      currentSymbols.forEach((s, idx) => {
+        const span = document.createElement('span');
+        span.className = "roman-char inserted-symbol";
+        span.textContent = s;
+        span.onclick = () => {
+          currentSymbols.splice(idx, 1);
+          renderSymbols();
+        };
+        zone.appendChild(span);
+      });
+
+      document.getElementById('roman-total').textContent = calculateTotal(currentSymbols);
+    }
+
+    function clearRoman() {
+      currentSymbols = [];
+      renderSymbols();
+    }
+  </script>
+</body>
+</html>

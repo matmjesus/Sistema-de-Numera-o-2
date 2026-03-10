@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full bg-stone-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ahau Matemático | Sistema Maia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --maya-jade: #065f46;
+      --maya-stone: #44403c;
+      --maya-gold: #d97706;
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, .font-cinzel { font-family: 'Cinzel', serif; }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(214, 211, 209, 0.5);
+    }
+
+    /* ELEMENTOS DO GLIFO */
+    .maya-bar { 
+      width: 60px; 
+      height: 10px; 
+      background: var(--maya-jade); 
+      margin: 4px 0; 
+      border-radius: 4px;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+      cursor: grab;
+    }
+    .maya-dot { 
+      width: 14px; 
+      height: 14px; 
+      background: var(--maya-jade); 
+      border-radius: 50%; 
+      display: inline-block; 
+      margin: 4px;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+      cursor: grab;
+    }
+    .maya-zero {
+      width: 50px;
+      height: 30px;
+      border: 4px solid var(--maya-gold);
+      border-radius: 50% / 100% 100% 0% 0%;
+      position: relative;
+      transform: rotate(180deg);
+      margin: 10px 0;
+      opacity: 0.4;
+    }
+    .maya-zero::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 10%; width: 80%; height: 2px; background: var(--maya-gold);
+    }
+
+    .level-box {
+      border: 2px dashed #d6d3d1;
+      padding: 20px;
+      border-radius: 1.5rem;
+      min-height: 160px;
+      width: 160px;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      transition: all 0.2s ease;
+    }
+    .level-box.drag-over {
+      border-color: var(--maya-jade);
+      background-color: #ecfdf5;
+      transform: scale(1.02);
+    }
+    .level-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #a8a29e;
+      margin-top: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      pointer-events: none;
+    }
+    .maya-bar:active, .maya-dot:active { cursor: grabbing; }
+  </style>
+</head>
+<body class="h-full text-stone-800">
+
+  <div class="max-w-6xl mx-auto min-h-screen flex flex-col px-6 py-10">
+    
+    <header class="text-center mb-12">
+      <h1 class="text-5xl md:text-6xl font-bold text-stone-900 mb-4 tracking-tight">Ahau Matemático</h1>
+      <p class="text-stone-500 text-lg">A Ciência do Tempo e dos Números</p>
+    </header>
+
+    <section id="home-screen" class="flex flex-col md:flex-row items-center justify-center gap-8 max-w-4xl mx-auto w-full py-10">
+      <button onclick="showScreen('decimal')" class="group glass-card w-full p-12 rounded-[2.5rem] text-center hover:border-emerald-600 transition-all duration-300 shadow-xl">
+        <div class="w-20 h-20 bg-emerald-800 rounded-3xl flex items-center justify-center text-white mx-auto mb-6 group-hover:rotate-12 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-stone-900 mb-2">Decimal → Maia</h2>
+        <p class="text-stone-500">Conversão por ordens vigesimais</p>
+      </button>
+
+      <button onclick="showScreen('maya')" class="group glass-card w-full p-12 rounded-[2.5rem] text-center hover:border-amber-600 transition-all duration-300 shadow-xl">
+        <div class="w-20 h-20 bg-amber-700 rounded-3xl flex items-center justify-center text-white mx-auto mb-6 group-hover:scale-110 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-stone-900 mb-2">Construtor de Glifos</h2>
+        <p class="text-stone-500">Arraste e solte para calcular</p>
+      </button>
+    </section>
+
+    <section id="decimal-screen" class="hidden space-y-6">
+      <button onclick="showScreen('home')" class="flex items-center font-bold text-stone-400 hover:text-emerald-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg> Voltar
+      </button>
+      <div class="glass-card p-12 rounded-[3rem] max-w-xl mx-auto shadow-2xl text-center">
+        <label class="block text-xs font-black uppercase tracking-tighter text-stone-400 mb-4">Insira o valor decimal</label>
+        <input type="number" id="decimal-input" placeholder="0" class="w-full text-6xl font-bold p-6 rounded-2xl border-4 border-stone-50 focus:border-emerald-500 text-center transition-all outline-none mb-12 text-stone-900">
+        <div id="maya-vertical-result" class="flex flex-col-reverse gap-6 items-center"></div>
+      </div>
+    </section>
+
+    <section id="maya-screen" class="hidden space-y-6">
+      <button onclick="showScreen('home')" class="flex items-center font-bold text-stone-400 hover:text-amber-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg> Voltar
+      </button>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div class="lg:col-span-1 space-y-4">
+          <div class="glass-card p-6 rounded-3xl sticky top-8 shadow-lg border-t-4 border-t-amber-500 text-center">
+            <h3 class="font-black text-[10px] uppercase text-stone-400 mb-6 tracking-widest">Peças Disponíveis</h3>
+            
+            <div class="flex flex-col items-center gap-8 mb-8 p-6 bg-stone-50 rounded-2xl border-2 border-dashed border-stone-200">
+              <div class="flex flex-col items-center gap-2">
+                <div draggable="true" ondragstart="drag(event, 1)" class="maya-dot scale-150"></div>
+                <span class="text-[10px] font-bold text-stone-400 mt-2">PONTO (1)</span>
+              </div>
+              <div class="flex flex-col items-center gap-2">
+                <div draggable="true" ondragstart="drag(event, 5)" class="maya-bar scale-110"></div>
+                <span class="text-[10px] font-bold text-stone-400 mt-2">BARRA (5)</span>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <button onclick="addLevel()" class="w-full bg-stone-900 text-white p-4 rounded-2xl font-bold hover:bg-black transition-all shadow-lg">Novo Nível (x20)</button>
+              <div id="trash-zone" ondrop="dropTrash(event)" ondragover="allowDrop(event)" ondragenter="this.classList.add('bg-red-100')" ondragleave="this.classList.remove('bg-red-100')" 
+                   class="w-full border-2 border-red-200 text-red-500 p-6 rounded-2xl text-xs font-bold uppercase tracking-widest transition-colors">
+                🗑️ Arraste para remover
+              </div>
+              <button onclick="clearMaya()" class="w-full text-stone-400 p-2 text-xs font-bold hover:text-red-600 uppercase">Limpar Tudo</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-3">
+          <div class="glass-card p-10 rounded-[3rem] min-h-[600px] flex flex-col justify-between shadow-2xl bg-stone-50/30">
+            <div id="maya-construction-zone" class="flex flex-col-reverse gap-8 items-center py-10"></div>
+            
+            <div class="bg-stone-900 rounded-[2rem] p-10 text-white flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl">
+              <div>
+                <p class="text-stone-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Valor Decimal</p>
+                <div id="maya-total" class="text-7xl font-bold text-amber-500 tracking-tighter">0</div>
+              </div>
+              <div class="text-center md:text-right">
+                <p class="text-stone-500 text-xs font-bold mb-1">Estrutura Vigesimal</p>
+                <p id="level-count" class="text-2xl font-cinzel text-stone-200">1 Nível</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    let mayaLevels = [0];
+
+    function showScreen(id) {
+      ['home-screen', 'decimal-screen', 'maya-screen'].forEach(s => document.getElementById(s).classList.add('hidden'));
+      document.getElementById(id + '-screen').classList.remove('hidden');
+    }
+
+    // Função de remover símbolo ao clicar
+    function removeSymbol(levelIdx, value) {
+      if (levelIdx !== null) {
+        mayaLevels[levelIdx] -= value;
+        renderMayaConstructor();
+      }
+    }
+
+    // Renderizador genérico de glifos
+    function renderMayaGlyph(val, isStatic = true, levelIdx = null) {
+      if (val === 0) return '<div class="maya-zero"></div>';
+      
+      let html = '<div class="flex flex-col items-center">';
+      const dots = val % 5;
+      const bars = Math.floor(val / 5);
+      
+      if (dots > 0) {
+        html += '<div class="flex justify-center mb-2">';
+        for(let i=0; i<dots; i++) {
+          const dragAttr = !isStatic ? `draggable="true" ondragstart="drag(event, 1, ${levelIdx})" onclick="removeSymbol(${levelIdx}, 1)"` : '';
+          html += `<div ${dragAttr} class="maya-dot"></div>`;
+        }
+        html += '</div>';
+      }
+      for(let i=0; i<bars; i++) {
+        const dragAttr = !isStatic ? `draggable="true" ondragstart="drag(event, 5, ${levelIdx})" onclick="removeSymbol(${levelIdx}, 5)"` : '';
+        html += `<div ${dragAttr} class="maya-bar"></div>`;
+      }
+      html += '</div>';
+      return html;
+    }
+
+    // LÓGICA DECIMAL -> MAIA
+    document.getElementById('decimal-input').oninput = (e) => {
+      let val = parseInt(e.target.value) || 0;
+      const container = document.getElementById('maya-vertical-result');
+      container.innerHTML = "";
+      
+      let power = 0;
+      let temp = val;
+      if (temp === 0) {
+        container.innerHTML = `<div class="level-box"><span class="level-label">20⁰ (x1)</span>${renderMayaGlyph(0)}</div>`;
+        return;
+      }
+
+      while (temp > 0) {
+        let remainder = temp % 20;
+        const box = document.createElement('div');
+        box.className = "level-box border-solid opacity-100";
+        const factor = Math.pow(20, power);
+        box.innerHTML = renderMayaGlyph(remainder) + `<span class="level-label">20^${power} (x${factor.toLocaleString()})</span>`;
+        container.appendChild(box);
+        temp = Math.floor(temp / 20);
+        power++;
+      }
+    };
+
+    // LÓGICA DRAG & DROP
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev, value, fromLevel = null) {
+      ev.dataTransfer.setData("value", value);
+      ev.dataTransfer.setData("fromLevel", fromLevel);
+    }
+
+    function drop(ev, toLevel) {
+      ev.preventDefault();
+      const levelBox = ev.target.closest('.level-box');
+      if(levelBox) levelBox.classList.remove('drag-over');
+
+      const value = parseInt(ev.dataTransfer.getData("value"));
+      const fromLevel = ev.dataTransfer.getData("fromLevel");
+
+      // Se for movimento interno (de um nível para outro ou do mesmo nível)
+      if (fromLevel !== "null") {
+          const fromIdx = parseInt(fromLevel);
+          if (fromIdx === toLevel) return; // Soltou no mesmo lugar
+          
+          if (mayaLevels[toLevel] + value < 20) {
+              mayaLevels[toLevel] += value;
+              mayaLevels[fromIdx] -= value;
+          } else {
+              alert("O valor máximo de cada nível é 19!");
+          }
+      } else {
+          // Vem da paleta externa
+          if (mayaLevels[toLevel] + value < 20) {
+              mayaLevels[toLevel] += value;
+          } else {
+              alert("O valor máximo de cada nível é 19!");
+          }
+      }
+      renderMayaConstructor();
+    }
+
+    function dropTrash(ev) {
+      ev.preventDefault();
+      ev.target.classList.remove('bg-red-100');
+      const value = parseInt(ev.dataTransfer.getData("value"));
+      const fromLevel = ev.dataTransfer.getData("fromLevel");
+
+      if (fromLevel !== "null") {
+        mayaLevels[parseInt(fromLevel)] -= value;
+        renderMayaConstructor();
+      }
+    }
+
+    function renderMayaConstructor() {
+      const zone = document.getElementById('maya-construction-zone');
+      zone.innerHTML = "";
+      let total = 0;
+
+      mayaLevels.forEach((val, idx) => {
+        const box = document.createElement('div');
+        box.className = "level-box";
+        box.setAttribute("ondrop", `drop(event, ${idx})`);
+        box.setAttribute("ondragover", "allowDrop(event)");
+        box.setAttribute("ondragenter", "this.classList.add('drag-over')");
+        box.setAttribute("ondragleave", "this.classList.remove('drag-over')");
+        
+        const factor = Math.pow(20, idx);
+        box.innerHTML = renderMayaGlyph(val, false, idx) + `<span class="level-label">Nível ${idx+1} (x${factor.toLocaleString()})</span>`;
+        
+        zone.appendChild(box);
+        total += val * factor;
+      });
+
+      document.getElementById('maya-total').textContent = total.toLocaleString('pt-BR');
+      document.getElementById('level-count').textContent = `${mayaLevels.length} ${mayaLevels.length > 1 ? 'Níveis' : 'Nível'}`;
+    }
+
+    function addLevel() {
+      if (mayaLevels.length < 8) {
+        mayaLevels.push(0);
+        renderMayaConstructor();
+      }
+    }
+
+    function clearMaya() {
+      mayaLevels = [0];
+      renderMayaConstructor();
+    }
+
+    // Inicialização
+    renderMayaConstructor();
+  </script>
+</body>
+</html>

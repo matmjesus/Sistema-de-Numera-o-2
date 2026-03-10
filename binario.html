@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full bg-slate-950">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentinela Binário | Sistema de Base 2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bit-glow: #22c55e;
+      --bit-dark: #064e3b;
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'Fira Code', monospace; }
+    
+    .glass-card {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .binary-char {
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      font-size: 3.5rem;
+      color: var(--bit-glow);
+      cursor: grab;
+      user-select: none;
+      transition: all 0.2s;
+      text-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+    }
+    .binary-char:hover { transform: scale(1.1); color: #4ade80; }
+
+    .construction-zone {
+      border: 2px dashed rgba(34, 197, 94, 0.3);
+      padding: 40px;
+      border-radius: 1.5rem;
+      min-height: 200px;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.2);
+      gap: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .construction-zone.drag-over {
+      border-color: var(--bit-glow);
+      background-color: rgba(34, 197, 94, 0.05);
+    }
+
+    .bit-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .bit-power {
+      font-size: 0.7rem;
+      color: #64748b;
+      font-family: 'Fira Code', monospace;
+      margin-top: 5px;
+    }
+
+    .inserted-symbol { cursor: pointer; }
+    .inserted-symbol:hover { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+  </style>
+</head>
+<body class="h-full text-slate-200">
+
+  <div class="max-w-6xl mx-auto min-h-screen flex flex-col px-6 py-10">
+    
+    <header class="text-center mb-12">
+      <h1 class="text-5xl md:text-6xl font-black text-white mb-2 tracking-tighter uppercase">Sentinela Binário</h1>
+      <p class="text-emerald-500 text-lg font-mono">01001001 01001110 01010100</p>
+    </header>
+
+    <section id="home-screen" class="flex flex-col md:flex-row items-center justify-center gap-8 max-w-4xl mx-auto w-full py-10">
+      <button onclick="showScreen('decimal')" class="group glass-card w-full p-12 rounded-[2.5rem] text-center hover:border-emerald-500 transition-all shadow-2xl">
+        <div class="w-20 h-20 bg-emerald-900 rounded-3xl flex items-center justify-center text-emerald-400 mx-auto mb-6 group-hover:rotate-12 transition-transform border border-emerald-700">
+          <span class="text-3xl font-bold">123</span>
+        </div>
+        <h2 class="text-3xl font-bold text-white mb-2">Decimal → Binário</h2>
+      </button>
+
+      <button onclick="showScreen('binary')" class="group glass-card w-full p-12 rounded-[2.5rem] text-center hover:border-emerald-500 transition-all shadow-2xl">
+        <div class="w-20 h-20 bg-emerald-600 rounded-3xl flex items-center justify-center text-white mx-auto mb-6 group-hover:scale-110 transition-transform shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+          <span class="text-4xl font-mono font-bold">01</span>
+        </div>
+        <h2 class="text-3xl font-bold text-white mb-2">Construtor de Bits</h2>
+      </button>
+    </section>
+
+    <section id="decimal-screen" class="hidden space-y-6">
+      <button onclick="showScreen('home')" class="font-bold text-slate-500 hover:text-emerald-400">← Voltar para a Base</button>
+      <div class="glass-card p-12 rounded-[3rem] max-w-2xl mx-auto text-center shadow-2xl">
+        <input type="number" id="decimal-input" min="0" placeholder="Insira um número" class="w-full bg-transparent text-7xl font-bold p-6 border-b-2 border-slate-800 focus:border-emerald-500 text-center outline-none mb-12 text-white">
+        <div id="binary-text-result" class="font-mono text-5xl text-emerald-500 break-all">---</div>
+      </div>
+    </section>
+
+    <section id="binary-screen" class="hidden space-y-6">
+      <button onclick="showScreen('home')" class="font-bold text-slate-500 hover:text-emerald-400">← Voltar para a Base</button>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div class="lg:col-span-1">
+          <div class="glass-card p-6 rounded-3xl text-center shadow-lg border-t-4 border-emerald-500">
+            <h3 class="text-xs font-black uppercase text-slate-500 mb-6 tracking-widest">Bits Disponíveis</h3>
+            <div class="flex flex-col gap-6 items-center">
+              <div draggable="true" ondragstart="drag(event, '1')" class="binary-char">1</div>
+              <div draggable="true" ondragstart="drag(event, '0')" class="binary-char">0</div>
+            </div>
+            <button onclick="clearBinary()" class="mt-8 text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-widest">Resetar Sequência</button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-3">
+          <div class="glass-card p-10 rounded-[3rem] min-h-[500px] flex flex-col justify-between shadow-2xl">
+            <div>
+              <p class="text-center text-slate-500 text-[10px] font-bold uppercase mb-4 tracking-widest">Arraste os bits para compor o número</p>
+              <div id="binary-construction-zone" class="construction-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="this.classList.remove('drag-over')">
+                </div>
+              <p id="error-msg" class="text-center text-red-400 text-xs mt-4 font-mono h-4"></p>
+            </div>
+            
+            <div class="bg-slate-900 border border-emerald-900/50 rounded-[2rem] p-10 text-white flex justify-between items-center shadow-inner">
+              <div>
+                <p class="text-emerald-500 text-[10px] font-black uppercase tracking-widest">Valor Decimal</p>
+                <div id="binary-total" class="text-7xl font-bold text-white">0</div>
+              </div>
+              <div class="text-right font-mono text-xs text-slate-500">
+                <p>Base: 2</p>
+                <p>Posição: 2<sup>n</sup></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    let currentBits = [];
+
+    function showScreen(id) {
+      document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(id + '-screen').classList.remove('hidden');
+    }
+
+    // --- LÓGICA DECIMAL -> BINÁRIO ---
+    document.getElementById('decimal-input').oninput = (e) => {
+      let val = parseInt(e.target.value);
+      if (isNaN(val) || val < 0) {
+        document.getElementById('binary-text-result').textContent = "---";
+        return;
+      }
+      document.getElementById('binary-text-result').textContent = val.toString(2);
+    };
+
+    // --- LÓGICA DRAG & DROP ---
+    function drag(ev, symbol) {
+      ev.dataTransfer.setData("symbol", symbol);
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+      ev.currentTarget.classList.add('drag-over');
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const zone = document.getElementById('binary-construction-zone');
+      zone.classList.remove('drag-over');
+      
+      const symbol = ev.dataTransfer.getData("symbol");
+      if (!symbol) return;
+
+      if (currentBits.length >= 16) {
+        document.getElementById('error-msg').textContent = "LIMITE DE 16 BITS ATINGIDO";
+        setTimeout(() => document.getElementById('error-msg').textContent = "", 2000);
+        return;
+      }
+
+      // Cálculo de posição
+      const children = Array.from(zone.querySelectorAll('.bit-container'));
+      let insertIndex = children.length;
+
+      for (let i = 0; i < children.length; i++) {
+        const rect = children[i].getBoundingClientRect();
+        const midPoint = rect.left + rect.width / 2;
+        if (ev.clientX < midPoint) {
+          insertIndex = i;
+          break;
+        }
+      }
+
+      currentBits.splice(insertIndex, 0, symbol);
+      renderBits();
+    }
+
+    // --- CÁLCULO E RENDERIZAÇÃO ---
+    function renderBits() {
+      const zone = document.getElementById('binary-construction-zone');
+      zone.innerHTML = "";
+      
+      // O valor binário é lido da esquerda para a direita, 
+      // mas as potências de 2 crescem da direita para a esquerda.
+      currentBits.forEach((bit, idx) => {
+        const container = document.createElement('div');
+        container.className = "bit-container";
+
+        const span = document.createElement('span');
+        span.className = "binary-char inserted-symbol";
+        span.textContent = bit;
+        span.onclick = () => {
+          currentBits.splice(idx, 1);
+          renderBits();
+        };
+
+        const power = document.createElement('span');
+        power.className = "bit-power";
+        // Potência baseada na posição inversa
+        const pValue = currentBits.length - 1 - idx;
+        power.innerHTML = `2<sup>${pValue}</sup>`;
+
+        container.appendChild(span);
+        container.appendChild(power);
+        zone.appendChild(container);
+      });
+
+      // Calcular Total: parseInt com base 2
+      const binaryString = currentBits.join('');
+      const total = binaryString ? parseInt(binaryString, 2) : 0;
+      document.getElementById('binary-total').textContent = total;
+    }
+
+    function clearBinary() {
+      currentBits = [];
+      renderBits();
+    }
+  </script>
+</body>
+</html>

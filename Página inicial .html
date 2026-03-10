@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistemas de Numeração - Prof. Marcos Antônio</title>
+    <style>
+        :root {
+            --primary-blue: #003366;
+            --accent-orange: #f39c12;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* CABEÇALHO COM MÁXIMO DESTAQUE */
+        header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            border-bottom: 8px solid var(--accent-orange);
+        }
+
+        .escola-destaque {
+            font-size: clamp(1.8rem, 5vw, 3rem); /* Responsivo e Grande */
+            font-weight: 900;
+            display: block;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .nte-sub {
+            font-size: 1.3rem;
+            color: var(--accent-orange);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 25px;
+        }
+
+        .prof-box {
+            border-top: 1px solid rgba(255,255,255,0.3);
+            display: inline-block;
+            padding-top: 15px;
+            font-size: 1.2rem;
+        }
+
+        /* LAYOUT DOS BOTÕES EM 2 POR LINHA */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h2 { 
+            text-align: center; 
+            color: var(--primary-blue); 
+            margin-bottom: 40px;
+            font-size: 1.8rem;
+        }
+
+        .grid-sistemas {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Força 2 colunas */
+            gap: 20px;
+        }
+
+        /* Estilo para centralizar o último botão (o 5º item) */
+        .grid-sistemas a:last-child {
+            grid-column: 1 / span 2; /* Ocupa as duas colunas */
+            justify-self: center;    /* Centraliza no meio */
+            width: calc(50% - 10px); /* Mantém o mesmo tamanho dos outros */
+        }
+
+        .btn-sistema {
+            background-color: white;
+            border: 3px solid var(--primary-blue);
+            border-radius: 15px;
+            padding: 25px 15px;
+            text-decoration: none;
+            color: var(--primary-blue);
+            text-align: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 0 var(--primary-blue);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-sistema:hover {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 var(--primary-blue);
+            background-color: #ebf2f9;
+        }
+
+        .btn-sistema strong {
+            font-size: 1.6rem; /* Título bem grande */
+            margin-bottom: 8px;
+        }
+
+        .btn-sistema span {
+            font-size: 1rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        /* Ajuste para telas pequenas */
+        @media (max-width: 500px) {
+            .grid-sistemas {
+                grid-template-columns: 1fr; /* 1 coluna no celular */
+            }
+            .grid-sistemas a:last-child {
+                width: 100%;
+            }
+        }
+
+        footer {
+            margin-top: 80px;
+            text-align: center;
+            padding: 30px;
+            background: #eee;
+            font-weight: bold;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <span class="escola-destaque">COLÉGIO ESTADUAL PRISCO VIANA</span>
+    <span class="nte-sub">NTE 11 - Tecnologia Educacional</span>
+    
+    <div class="prof-box">
+        Professor: <strong>Marcos Antônio de Jesus</strong>
+    </div>
+</header>
+
+<div class="container">
+    <h2>Explore os Sistemas de Numeração</h2>
+    
+    <div class="grid-sistemas">
+        <a href="maia.html" class="btn-sistema">
+            <strong>Maia</strong>
+            <span>Vigesimal (Base 20)</span>
+        </a>
+
+        <a href="egipcio.html" class="btn-sistema">
+            <strong>Egípcio</strong>
+            <span>Aditivo (Hieróglifos)</span>
+        </a>
+
+        <a href="romano.html" class="btn-sistema">
+            <strong>Romano</strong>
+            <span>Símbolos de I a M</span>
+        </a>
+
+        <a href="binario.html" class="btn-sistema">
+            <strong>Binário</strong>
+            <span>Posicional (Base 2)</span>
+        </a>
+
+        <a href="babilonico.html" class="btn-sistema">
+            <strong>Babilônico</strong>
+            <span>Sexagesimal (Base 60)</span>
+        </a>
+    </div>
+</div>
+
+<footer>
+    Matemática & Tecnologia Educacional &bull; 2026
+</footer>
+
+</body>
+</html>
