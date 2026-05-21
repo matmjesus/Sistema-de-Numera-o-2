@@ -2,95 +2,114 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Quiz Finanças Mobile</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Open+Sans:wght@600;800&display=swap" rel="stylesheet">
     <style>
-        /* CONFIGURAÇÕES MOBILE-FIRST */
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+        /* CONFIGURAÇÕES DE RESET E MOBILE */
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
         body { 
             font-family: 'Open Sans', sans-serif;
             background-color: #111827; 
             color: #ffffff;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
+            /* Permite rolagem natural se a tela for muito pequena */
+            min-height: 100vh; 
+            overflow-x: hidden;
         }
 
-        /* ESTRUTURA DO SLIDE */
+        /* ESTRUTURA DOS SLIDES */
         .slide {
-            width: 100%;
-            height: 100%;
-            display: none;
+            width: 100vw;
+            min-height: 100vh;
+            display: none; /* Oculta todas as telas por padrão */
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
-            overflow-y: auto;
         }
 
-        .slide.ativo { display: flex; }
+        /* CLASSE QUE MOSTRA A TELA ATIVA */
+        .slide.ativo { 
+            display: flex; 
+        }
 
-        /* TIPOGRAFIA ADAPTADA PARA TELAS PEQUENAS */
-        h1 { font-family: 'Montserrat', sans-serif; font-size: 10vw; font-weight: 900; text-align: center; margin: 40px 0 20px; color: #ffffff; }
+        /* TEXTOS ADAPTADOS */
+        h1 { 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 10vw; 
+            font-weight: 900; 
+            text-align: center; 
+            margin-bottom: 15px; 
+            color: #ffffff; 
+        }
         
         h2 { 
             font-family: 'Montserrat', sans-serif; 
-            font-size: 5.5vw; 
+            font-size: 6vw; 
             font-weight: 700; 
             text-align: center; 
             background: #ffffff; 
-            color: #111827; 
-            padding: 20px; 
+            color: #111827; /* Letra escura no fundo branco */
+            padding: 25px 20px; 
             border-radius: 12px; 
             margin-bottom: 25px; 
-            line-height: 1.3;
+            line-height: 1.4;
+            width: 100%;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         
-        .subtitulo { font-size: 4.5vw; text-align: center; color: #9ca3af; margin-bottom: 30px; }
+        .subtitulo { font-size: 5vw; text-align: center; color: #9ca3af; margin-bottom: 40px; }
         
         .contador { 
-            font-size: 3.5vw; 
+            font-size: 4vw; 
             background: #374151; 
-            padding: 5px 15px; 
+            color: white;
+            padding: 8px 20px; 
             border-radius: 20px; 
-            align-self: center; 
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             font-weight: 800;
             letter-spacing: 1px;
         }
 
-        /* RESPOSTAS EM COLUNA (MELHOR PARA MOBILE) */
+        /* CAIXA DE RESPOSTAS */
         .grid-respostas {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
             width: 100%;
-            padding-bottom: 30px;
+            max-width: 500px;
         }
 
         .btn-resposta {
             font-family: 'Montserrat', sans-serif;
-            font-size: 4.8vw;
+            font-size: 5vw;
             font-weight: 700;
             color: white;
             border: none;
-            padding: 18px 20px;
+            padding: 20px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             text-align: left;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+            cursor: pointer;
         }
         
-        .btn-resposta:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+        .btn-resposta:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
 
+        /* ÍCONES DAS RESPOSTAS */
         .btn-resposta::before {
             content: '';
-            width: 24px;
-            height: 24px;
+            width: 25px;
+            height: 25px;
             margin-right: 15px;
             background-color: rgba(255,255,255,0.3);
             flex-shrink: 0;
@@ -101,7 +120,7 @@
         .amarelo { background-color: #d89e00; } .amarelo::before { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
         .verde { background-color: #26890c; }
 
-        /* PAINEL DE SOLUÇÃO MOBILE */
+        /* PAINEL DE GABARITO (FICA ESCONDIDO ATÉ RESPONDER) */
         .painel-solucao {
             display: none;
             background: #ffffff;
@@ -109,41 +128,272 @@
             padding: 25px;
             border-radius: 15px;
             width: 100%;
-            margin-bottom: 30px;
+            max-width: 500px;
+            margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
-        .solucao-titulo { font-family: 'Montserrat', sans-serif; font-size: 6vw; font-weight: 900; color: #26890c; text-align: center; margin-bottom: 15px; }
-        .texto-calculo { font-size: 4.2vw; line-height: 1.4; margin-bottom: 10px; font-weight: 600; }
-        .formula-destaque { background: #f3f4f6; padding: 15px; border-radius: 10px; font-size: 5.5vw; font-weight: 800; color: #1368ce; text-align: center; margin: 15px 0; }
+        
+        .solucao-titulo { font-family: 'Montserrat', sans-serif; font-size: 6.5vw; font-weight: 900; color: #26890c; text-align: center; margin-bottom: 20px; }
+        .texto-calculo { font-size: 4.5vw; line-height: 1.5; margin-bottom: 12px; font-weight: 600; text-align: center; }
+        .formula-destaque { background: #f3f4f6; padding: 15px; border-radius: 10px; font-size: 6vw; font-weight: 800; color: #1368ce; text-align: center; margin: 20px 0; }
 
+        /* BOTÃO AVANÇAR */
         .btn-avancar {
             background-color: #3b82f6;
             color: white;
-            font-size: 5vw;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 5.5vw;
             font-weight: 700;
             border: none;
-            padding: 15px 30px;
+            padding: 18px 30px;
             border-radius: 10px;
-            margin: 20px auto;
-            width: 80%;
+            margin: 20px auto 0;
+            width: 100%;
             display: block;
+            box-shadow: 0 5px 0 #1d4ed8;
+            cursor: pointer;
         }
+        .btn-avancar:active { transform: translateY(3px); box-shadow: 0 2px 0 #1d4ed8; }
 
+        /* EFEITOS DE CERTO/ERRADO */
         .errou { opacity: 0.3; }
         .acertou { border: 3px solid white; animation: pulsar 0.4s infinite alternate; }
-        @keyframes pulsar { from { transform: scale(1); } to { transform: scale(1.02); } }
+        @keyframes pulsar { from { transform: scale(1); } to { transform: scale(1.03); } }
     </style>
 </head>
 <body>
 
-    <div class="slide ativo" id="slide-capa" style="justify-content: center;">
+    <div class="slide ativo" id="slide-capa">
         <h1>DESAFIO FINANÇAS</h1>
         <p class="subtitulo">10 Questões de Juros Simples</p>
-        <button class="btn-avancar" onclick="ir('slide-capa', 'slide-q1')">Iniciar</button>
+        <button class="btn-avancar" style="max-width: 300px;" onclick="ir('slide-capa', 'slide-q1')">Iniciar Agora</button>
     </div>
 
     <div class="slide" id="slide-q1">
         <div class="contador">1 DE 10</div>
-        <h2>R$ 1.000,00 a 5% ao mês por 2 meses. Valor da parcela?</h2>
+        <h2>R$ 1.000,00 a 5% ao mês por 2 meses. Qual o valor da parcela?</h2>
         <div class="grid-respostas" id="resp-q1">
             <button class="btn-resposta vermelho" onclick="check('q1', false, this)">R$ 525,00</button>
-            <button class="btn-resposta azul" onclick="check('
+            <button class="btn-resposta azul" onclick="check('q1', true, this)">R$ 550,00</button>
+            <button class="btn-resposta amarelo" onclick="check('q1', false, this)">R$ 500,00</button>
+            <button class="btn-resposta verde" onclick="check('q1', false, this)">R$ 600,00</button>
+        </div>
+        <div class="painel-solucao" id="sol-q1">
+            <div class="solucao-titulo">Gabarito</div>
+            <p class="texto-calculo">Multiplicação: 1.000 × 5 × 2 = 10.000</p>
+            <p class="texto-calculo">Juros (div por 100): R$ 100,00</p>
+            <div class="formula-destaque">Total a pagar: R$ 1.100,00</div>
+            <p class="texto-calculo">Parcela: 1.100 ÷ 2 = <strong>R$ 550,00</strong></p>
+            <button class="btn-avancar" onclick="ir('slide-q1', 'slide-q2')">Próxima Questão</button>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-q2">
+        <div class="contador">2 DE 10</div>
+        <h2>R$ 2.000,00 a 3% ao mês por 3 meses. Qual o valor da parcela?</h2>
+        <div class="grid-respostas" id="resp-q2">
+            <button class="btn-resposta vermelho" onclick="check('q2', false, this)">R$ 710,00</button>
+            <button class="btn-resposta azul" onclick="check('q2', true, this)">R$ 726,67</button>
+            <button class="btn-resposta amarelo" onclick="check('q2', false, this)">R$ 680,00</button>
+            <button class="btn-resposta verde" onclick="check('q2', false, this)">R$ 750,00</button>
+        </div>
+        <div class="painel-solucao" id="sol-q2">
+            <div class="solucao-titulo">Gabarito</div>
+            <p class="texto-calculo">Multiplicação: 2.000 × 3 × 3 = 18.000</p>
+            <p class="texto-calculo">Juros (div por 100): R$ 180,00</p>
+            <div class="formula-destaque">Total a pagar: R$ 2.180,00</div>
+            <p class="texto-calculo">Parcela: 2.180 ÷ 3 = <strong>R$ 726,67</strong></p>
+            <button class="btn-avancar" onclick="ir('slide-q2', 'slide-q3')">Próxima Questão</button>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-q3">
+        <div class="contador">3 DE 10</div>
+        <h2>R$ 5.000,00 a 4% ao mês por 6 meses. Qual o valor da parcela?</h2>
+        <div class="grid-respostas" id="resp-q3">
+            <button class="btn-resposta vermelho" onclick="check('q3', true, this)">R$ 1.033,33</button>
+            <button class="btn-resposta azul" onclick="check('q3', false, this)">R$ 1.100,00</button>
+            <button class="btn-resposta amarelo" onclick="check('q3', false, this)">R$ 950,00</button>
+            <button class="btn-resposta verde" onclick="check('q3', false, this)">R$ 1.050,00</button>
+        </div>
+        <div class="painel-solucao" id="sol-q3">
+            <div class="solucao-titulo">Gabarito</div>
+            <p class="texto-calculo">Multiplicação: 5.000 × 4 × 6 = 120.000</p>
+            <p class="texto-calculo">Juros (div por 100): R$ 1.200,00</p>
+            <div class="formula-destaque">Total a pagar: R$ 6.200,00</div>
+            <p class="texto-calculo">Parcela: 6.200 ÷ 6 = <strong>R$ 1.033,33</strong></p>
+            <button class="btn-avancar" onclick="ir('slide-q3', 'slide-q4')">Próxima Questão</button>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-q4">
+        <div class="contador">4 DE 10</div>
+        <h2>R$ 600,00 a 10% ao mês por 2 meses. Qual o valor da parcela?</h2>
+        <div class="grid-respostas" id="resp-q4">
+            <button class="btn-resposta vermelho" onclick="check('q4', false, this)">R$ 330,00</button>
+            <button class="btn-resposta azul" onclick="check('q4', true, this)">R$ 360,00</button>
+            <button class="btn-resposta amarelo" onclick="check('q4', false, this)">R$ 380,00</button>
+            <button class="btn-resposta verde" onclick="check('q4', false, this)">R$ 340,00</button>
+        </div>
+        <div class="painel-solucao" id="sol-q4">
+            <div class="solucao-titulo">Gabarito</div>
+            <p class="texto-calculo">Multiplicação: 600 × 10 × 2 = 12.000</p>
+            <p class="texto-calculo">Juros (div por 100): R$ 120,00</p>
+            <div class="formula-destaque">Total a pagar: R$ 720,00</div>
+            <p class="texto-calculo">Parcela: 720 ÷ 2 = <strong>R$ 360,00</strong></p>
+            <button class="btn-avancar" onclick="ir('slide-q4', 'slide-q5')">Próxima Questão</button>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-q5">
+        <div class="contador">5 DE 10</div>
+        <h2>R$ 3.000,00 a 2% ao mês por 5 meses. Qual o valor da parcela?</h2>
+        <div class="grid-respostas" id="resp-q5">
+            <button class="btn-resposta vermelho" onclick="check('q5', false, this)">R$ 630,00</button>
+            <button class="btn-resposta azul" onclick="check('q5', true, this)">R$ 660,00</button>
+            <button class="btn-resposta amarelo" onclick="check('q5', false, this)">R$ 610,00</button>
+            <button class="btn-resposta verde" onclick="check('q5', false, this)">R$ 600,00</button>
+        </div>
+        <div class="painel-solucao" id="sol-q5">
+            <div class="solucao-titulo">Gabarito</div>
+            <p class="texto-calculo">Multiplicação: 3.000 × 2 × 5 = 30.000</p>
+            <p class="texto-calculo">Juros (div por 100): R$ 300,00</p>
+            <div class="formula-destaque">Total a pagar: R$ 3.300,00</div>
+            <p class="texto-calculo">Parcela: 3.300 ÷ 5 = <strong>R$ 660,00</strong></p>
+            <button class="btn-avancar" onclick="ir('slide-q5', 'slide-q6')">Próxima Questão</button>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-q6">
+        <div class="contador">6 DE 10</div>
+        <h2>R$ 8.000,00 a 3% ao mês por 4 meses. Qual o valor da parcela?</h2>
+        <div class="grid-respostas" id="resp-q6">
+            <button class="btn-resposta vermelho" onclick="check('q6', true, this)">R$ 2.240,00</button>
+            <button class="btn-resposta azul" onclick="check('q6', false, this)">R$ 2.120,00</button>
+            <button class="btn-resposta amarelo" onclick="check('q6', false, this)">R$ 2.000,00</button>
+            <button class="btn-resposta verde" onclick="check('q6', false, this)">R$ 2.400,00</button>
+        </div>
+        <div class="painel-solucao" id="sol-q6">
+            <div class="solucao-titulo">Gabarito</div>
+            <p class="texto-calculo">Multiplicação: 8.000 × 3 × 4 = 96.000</p>
+            <p class="texto-calculo">Juros (div por 100): R$ 960,00</p>
+            <div class="formula-destaque">Total a pagar: R$ 8.960,00</div>
+            <p class="texto-calculo">Parcela: 8.960 ÷ 4 = <strong>R$ 2.240,00</strong></p>
+            <button class="btn-avancar" onclick="ir('slide-q6', 'slide-q7')">Próxima Questão</button>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-q7">
+        <div class="contador">7 DE 10</div>
+        <h2>R$ 1.500,00 a 6% ao mês por 3 meses. Qual o valor da parcela?</h2>
+        <div class="grid-respostas" id="resp-q7">
+            <button class="btn-resposta vermelho" onclick="check('q7', false, this)">R$ 560,00</button>
+            <button class="btn-resposta azul" onclick="check('q7', true, this)">R$ 590,00</button>
+            <button class="btn-resposta amarelo" onclick="check('q7', false, this)">R$ 530,00</button>
+            <button class="btn-resposta verde" onclick="check('q7', false, this)">R$ 600,00</button>
+        </div>
+        <div class="painel-solucao" id="sol-q7">
+            <div class="solucao-titulo">Gabarito</div>
+            <p class="texto-calculo">Multiplicação: 1.500 × 6 × 3 = 27.000</p>
+            <p class="texto-calculo">Juros (div por 100): R$ 270,00</p>
+            <div class="formula-destaque">Total a pagar: R$ 1.770,00</div>
+            <p class="texto-calculo">Parcela: 1.770 ÷ 3 = <strong>R$ 590,00</strong></p>
+            <button class="btn-avancar" onclick="ir('slide-q7', 'slide-q8')">Próxima Questão</button>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-q8">
+        <div class="contador">8 DE 10</div>
+        <h2>R$ 4.000,00 a 5% ao mês por 5 meses. Qual o valor da parcela?</h2>
+        <div class="grid-respostas" id="resp-q8">
+            <button class="btn-resposta vermelho" onclick="check('q8', true, this)">R$ 1.000,00</button>
+            <button class="btn-resposta azul" onclick="check('q8', false, this)">R$ 950,00</button>
+            <button class="btn-resposta amarelo" onclick="check('q8', false, this)">R$ 1.100,00</button>
+            <button class="btn-resposta verde" onclick="check('q8', false, this)">R$ 1.050,00</button>
+        </div>
+        <div class="painel-solucao" id="sol-q8">
+            <div class="solucao-titulo">Gabarito</div>
+            <p class="texto-calculo">Multiplicação: 4.000 × 5 × 5 = 100.000</p>
+            <p class="texto-calculo">Juros (div por 100): R$ 1.000,00</p>
+            <div class="formula-destaque">Total a pagar: R$ 5.000,00</div>
+            <p class="texto-calculo">Parcela: 5.000 ÷ 5 = <strong>R$ 1.000,00</strong></p>
+            <button class="btn-avancar" onclick="ir('slide-q8', 'slide-q9')">Próxima Questão</button>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-q9">
+        <div class="contador">9 DE 10</div>
+        <h2>R$ 2.500,00 a 4% ao mês por 2 meses. Qual o valor da parcela?</h2>
+        <div class="grid-respostas" id="resp-q9">
+            <button class="btn-resposta vermelho" onclick="check('q9', false, this)">R$ 1.300,00</button>
+            <button class="btn-resposta azul" onclick="check('q9', true, this)">R$ 1.350,00</button>
+            <button class="btn-resposta amarelo" onclick="check('q9', false, this)">R$ 1.400,00</button>
+            <button class="btn-resposta verde" onclick="check('q9', false, this)">R$ 1.250,00</button>
+        </div>
+        <div class="painel-solucao" id="sol-q9">
+            <div class="solucao-titulo">Gabarito</div>
+            <p class="texto-calculo">Multiplicação: 2.500 × 4 × 2 = 20.000</p>
+            <p class="texto-calculo">Juros (div por 100): R$ 200,00</p>
+            <div class="formula-destaque">Total a pagar: R$ 2.700,00</div>
+            <p class="texto-calculo">Parcela: 2.700 ÷ 2 = <strong>R$ 1.350,00</strong></p>
+            <button class="btn-avancar" onclick="ir('slide-q9', 'slide-q10')">Próxima Questão</button>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-q10">
+        <div class="contador">10 DE 10</div>
+        <h2>R$ 12.000,00 a 2% ao mês por 3 meses. Qual o valor da parcela?</h2>
+        <div class="grid-respostas" id="resp-q10">
+            <button class="btn-resposta vermelho" onclick="check('q10', false, this)">R$ 4.080,00</button>
+            <button class="btn-resposta azul" onclick="check('q10', true, this)">R$ 4.240,00</button>
+            <button class="btn-resposta amarelo" onclick="check('q10', false, this)">R$ 4.150,00</button>
+            <button class="btn-resposta verde" onclick="check('q10', false, this)">R$ 4.300,00</button>
+        </div>
+        <div class="painel-solucao" id="sol-q10">
+            <div class="solucao-titulo">Gabarito</div>
+            <p class="texto-calculo">Multiplicação: 12.000 × 2 × 3 = 72.000</p>
+            <p class="texto-calculo">Juros (div por 100): R$ 720,00</p>
+            <div class="formula-destaque">Total a pagar: R$ 12.720,00</div>
+            <p class="texto-calculo">Parcela: 12.720 ÷ 3 = <strong>R$ 4.240,00</strong></p>
+            <button class="btn-avancar" onclick="ir('slide-q10', 'slide-fim')">Concluir Desafio</button>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-fim">
+        <h1>PARABÉNS!</h1>
+        <p class="subtitulo" style="color: #10b981;">Você domina os Juros Simples.</p>
+        <button class="btn-avancar" style="background-color: #10b981; max-width: 300px; box-shadow: 0 5px 0 #047857;" onclick="location.reload()">Recomeçar Quiz</button>
+    </div>
+
+    <script>
+        // Função que troca a tela
+        function ir(idAtual, idProximo) {
+            document.getElementById(idAtual).classList.remove('ativo');
+            document.getElementById(idProximo).classList.add('ativo');
+            window.scrollTo(0,0); // Volta a tela para o topo
+        }
+
+        // Função que checa a resposta e pinta os botões
+        function check(idQuestao, correto, btnClicado) {
+            let botoes = document.querySelectorAll(`#resp-${idQuestao} .btn-resposta`);
+            
+            botoes.forEach(b => {
+                if(b === btnClicado && correto) {
+                    b.classList.add('acertou'); // Se acertou, pisca branco
+                } else if(b === btnClicado && !correto) {
+                    b.style.backgroundColor = '#4b5563'; // Se errou, fica cinza
+                } else {
+                    b.classList.add('errou'); // Escurece as outras opções
+                }
+                b.style.pointerEvents = 'none'; // Impede de clicar de novo
+            });
+
+            // Aguarda meio segundo e mostra a explicação
+            setTimeout(() => {
+                document.getElementById(`resp-${idQuestao}`).style.display = 'none';
+                document.getElementById(`sol-${idQuestao}`).style.display = 'block';
+            }, 600);
+        }
+    </script>
+</body>
+</html>
