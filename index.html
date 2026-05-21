@@ -2,354 +2,148 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz de Finanças Noturno: Juros Simples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quiz Finanças Mobile</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Open+Sans:wght@600;800&display=swap" rel="stylesheet">
     <style>
-        /* CONFIGURAÇÕES GERAIS - ESTILO DESAFIO INTERATIVO */
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        /* CONFIGURAÇÕES MOBILE-FIRST */
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
         
         body { 
             font-family: 'Open Sans', sans-serif;
-            background-color: #111827; /* Fundo escuro confortável para aulas noturnas */
+            background-color: #111827; 
             color: #ffffff;
-            overflow-x: hidden;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
         }
 
-        /* CONTAINER DE CADA TELA (OCUPA 100% DO NAVEGADOR) */
+        /* ESTRUTURA DO SLIDE */
         .slide {
-            width: 100vw;
-            height: 100vh;
-            display: none; /* Controlado via JS */
+            width: 100%;
+            height: 100%;
+            display: none;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 60px;
+            padding: 20px;
+            overflow-y: auto;
         }
 
         .slide.ativo { display: flex; }
 
-        /* TIPOGRAFIA GIGANTE */
-        h1 { font-family: 'Montserrat', sans-serif; font-size: 80px; font-weight: 900; text-align: center; text-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px; }
-        h2 { font-family: 'Montserrat', sans-serif; font-size: 40px; font-weight: 700; text-align: center; background: #ffffff; color: #111827; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 1200px; margin-bottom: 40px; line-height: 1.4; }
+        /* TIPOGRAFIA ADAPTADA PARA TELAS PEQUENAS */
+        h1 { font-family: 'Montserrat', sans-serif; font-size: 10vw; font-weight: 900; text-align: center; margin: 40px 0 20px; color: #ffffff; }
         
-        .subtitulo { font-size: 36px; text-align: center; color: #9ca3af; margin-bottom: 40px; }
-        .contador-questoes { font-size: 28px; background: #374151; padding: 10px 25px; border-radius: 50px; margin-bottom: 20px; font-weight: 700; letter-spacing: 2px; }
+        h2 { 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 5.5vw; 
+            font-weight: 700; 
+            text-align: center; 
+            background: #ffffff; 
+            color: #111827; 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 25px; 
+            line-height: 1.3;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .subtitulo { font-size: 4.5vw; text-align: center; color: #9ca3af; margin-bottom: 30px; }
+        
+        .contador { 
+            font-size: 3.5vw; 
+            background: #374151; 
+            padding: 5px 15px; 
+            border-radius: 20px; 
+            align-self: center; 
+            margin-bottom: 15px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
 
-        /* GRID DE RESPOSTAS COLORIDAS */
+        /* RESPOSTAS EM COLUNA (MELHOR PARA MOBILE) */
         .grid-respostas {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             width: 100%;
-            max-width: 1200px;
+            padding-bottom: 30px;
         }
 
         .btn-resposta {
             font-family: 'Montserrat', sans-serif;
-            font-size: 36px;
+            font-size: 4.8vw;
             font-weight: 700;
             color: white;
             border: none;
-            padding: 35px;
-            border-radius: 12px;
-            cursor: pointer;
+            padding: 18px 20px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
-            box-shadow: 0 8px 0 rgba(0,0,0,0.2);
-            transition: transform 0.1s;
             text-align: left;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
         }
-        .btn-resposta:active { transform: translateY(4px); box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
         
-        /* Formas Geométricas Indicativas */
+        .btn-resposta:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+
         .btn-resposta::before {
             content: '';
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            margin-right: 25px;
-            background-color: rgba(255,255,255,0.25);
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            background-color: rgba(255,255,255,0.3);
             flex-shrink: 0;
         }
 
-        .vermelho  { background-color: #e21b3c; } .vermelho::before  { transform: rotate(45deg); }
-        .azul      { background-color: #1368ce; } .azul::before      { border-radius: 50%; }
-        .amarelo   { background-color: #d89e00; } .amarelo::before   { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
-        .verde     { background-color: #26890c; } .verde::before     { border-radius: 4px; }
+        .vermelho { background-color: #e21b3c; } .vermelho::before { transform: rotate(45deg); }
+        .azul { background-color: #1368ce; } .azul::before { border-radius: 50%; }
+        .amarelo { background-color: #d89e00; } .amarelo::before { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+        .verde { background-color: #26890c; }
 
-        /* PAINEL DE RESOLUÇÃO DETALHADA */
+        /* PAINEL DE SOLUÇÃO MOBILE */
         .painel-solucao {
             display: none;
             background: #ffffff;
             color: #111827;
-            padding: 45px;
-            border-radius: 24px;
-            max-width: 1100px;
+            padding: 25px;
+            border-radius: 15px;
             width: 100%;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            margin-bottom: 30px;
         }
-        .solucao-titulo { font-family: 'Montserrat', sans-serif; font-size: 50px; font-weight: 900; margin-bottom: 25px; text-align: center; color: #26890c; }
-        .texto-calculo { font-size: 34px; line-height: 1.5; margin-bottom: 15px; font-weight: 600; }
-        .formula-destaque { font-family: 'Montserrat', sans-serif; font-size: 50px; color: #1368ce; font-weight: 800; text-align: center; margin: 20px 0; background: #f3f4f6; padding: 15px; border-radius: 12px; }
+        .solucao-titulo { font-family: 'Montserrat', sans-serif; font-size: 6vw; font-weight: 900; color: #26890c; text-align: center; margin-bottom: 15px; }
+        .texto-calculo { font-size: 4.2vw; line-height: 1.4; margin-bottom: 10px; font-weight: 600; }
+        .formula-destaque { background: #f3f4f6; padding: 15px; border-radius: 10px; font-size: 5.5vw; font-weight: 800; color: #1368ce; text-align: center; margin: 15px 0; }
 
-        /* BOTÕES DE NAVEGAÇÃO */
         .btn-avancar {
-            font-family: 'Montserrat', sans-serif;
             background-color: #3b82f6;
             color: white;
-            font-size: 32px;
+            font-size: 5vw;
             font-weight: 700;
             border: none;
-            padding: 20px 50px;
-            border-radius: 12px;
-            cursor: pointer;
-            margin-top: 25px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin: 20px auto;
+            width: 80%;
             display: block;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0 6px 0 #1d4ed8;
         }
-        .btn-avancar:hover { background-color: #2563eb; }
 
-        /* COMPORTAMENTOS APÓS RESPOSTA */
-        .errou { opacity: 0.2; transform: scale(0.96); }
-        .acertou { animation: pulsar 0.4s infinite alternate; box-shadow: 0 0 30px rgba(38,137,12,0.6); }
+        .errou { opacity: 0.3; }
+        .acertou { border: 3px solid white; animation: pulsar 0.4s infinite alternate; }
         @keyframes pulsar { from { transform: scale(1); } to { transform: scale(1.02); } }
     </style>
 </head>
 <body>
 
-    <div class="slide ativo" id="slide-capa">
-        <h1>DESAFIO NOTURNO</h1>
-        <p class="subtitulo">10 Questões Rápidas de Juros Simples e Parcelamento</p>
-        <button class="btn-avancar" onclick="proximoSlide('slide-capa', 'slide-q1')">Iniciar Desafio</button>
+    <div class="slide ativo" id="slide-capa" style="justify-content: center;">
+        <h1>DESAFIO FINANÇAS</h1>
+        <p class="subtitulo">10 Questões de Juros Simples</p>
+        <button class="btn-avancar" onclick="ir('slide-capa', 'slide-q1')">Iniciar</button>
     </div>
 
     <div class="slide" id="slide-q1">
-        <div class="contador-questoes">QUESTÃO 1 DE 10</div>
-        <h2>Um microcrédito de R$ 1.000,00 foi obtido a uma taxa de juros simples de 5% ao mês por 2 meses. Qual o valor final de cada parcela mensal fixa?</h2>
-        <div class="grid-respostas" id="respostas-q1">
-            <button class="btn-resposta vermelho" onclick="conferir('q1', false, this)">R$ 525,00</button>
-            <button class="btn-resposta azul" onclick="conferir('q1', true, this)">R$ 550,00</button>
-            <button class="btn-resposta amarelo" onclick="conferir('q1', false, this)">R$ 600,00</button>
-            <button class="btn-resposta verde" onclick="conferir('q1', false, this)">R$ 500,00</button>
-        </div>
-        <div class="painel-solucao" id="solucao-q1">
-            <div class="solucao-titulo">Gabarito Técnico</div>
-            <div class="texto-calculo">Multiplicação inicial: 1.000 × 5 × 2 = 10.000</div>
-            <div class="texto-calculo">Juros totais (Dividido por 100): 10.000 / 100 = <strong>R$ 100,00</strong></div>
-            <div class="formula-destaque">Montante Total = R$ 1.100,00</div>
-            <div class="texto-calculo" style="text-align:center;">Divisão final: R$ 1.100,00 / 2 meses = <strong>R$ 550,00 por mês</strong></div>
-            <button class="btn-avancar" onclick="proximoSlide('slide-q1', 'slide-q2')">Próxima Questão</button>
-        </div>
-    </div>
-
-    <div class="slide" id="slide-q2">
-        <div class="contador-questoes">QUESTÃO 2 DE 10</div>
-        <h2>Uma fatura de fornecedor de R$ 2.000,00 atrasou e cobrou-se juros simples de 3% ao mês por 3 meses. Qual o valor das parcelas divididas em 3 vezes?</h2>
-        <div class="grid-respostas" id="respostas-q2">
-            <button class="btn-resposta vermelho" onclick="conferir('q2', false, this)">R$ 686,67</button>
-            <button class="btn-resposta azul" onclick="conferir('q2', false, this)">R$ 710,00</button>
-            <button class="btn-resposta amarelo" onclick="conferir('q2', true, this)">R$ 726,67</button>
-            <button class="btn-resposta verde" onclick="conferir('q2', false, this)">R$ 750,00</button>
-        </div>
-        <div class="painel-solucao" id="solucao-q2">
-            <div class="solucao-titulo">Gabarito Técnico</div>
-            <div class="texto-calculo">Multiplicação inicial: 2.000 × 3 × 3 = 18.000</div>
-            <div class="texto-calculo">Juros totais (Dividido por 100): 18.000 / 100 = <strong>R$ 180,00</strong></div>
-            <div class="formula-destaque">Montante Total = R$ 2.180,00</div>
-            <div class="texto-calculo" style="text-align:center;">Divisão final: R$ 2.180,00 / 3 meses = <strong>R$ 726,67 por mês</strong></div>
-            <button class="btn-avancar" onclick="proximoSlide('slide-q2', 'slide-q3')">Próxima Questão</button>
-        </div>
-    </div>
-
-    <div class="slide" id="slide-q3">
-        <div class="contador-questoes">QUESTÃO 3 DE 10</div>
-        <h2>Para renovar o estoque, obteve-se R$ 5.000,00 sob juros simples de 4% ao mês por 6 meses. Qual o valor da parcela mensal igual?</h2>
-        <div class="grid-respostas" id="respostas-q3">
-            <button class="btn-resposta vermelho" onclick="conferir('q3', true, this)">R$ 1.033,33</button>
-            <button class="btn-resposta azul" onclick="conferir('q3', false, this)">R$ 980,00</button>
-            <button class="btn-resposta amarelo" onclick="conferir('q3', false, this)">R$ 1.120,00</button>
-            <button class="btn-resposta verde" onclick="conferir('q3', false, this)">R$ 1.000,00</button>
-        </div>
-        <div class="painel-solucao" id="solucao-q3">
-            <div class="solucao-titulo">Gabarito Técnico</div>
-            <div class="texto-calculo">Multiplicação inicial: 5.000 × 4 × 6 = 120.000</div>
-            <div class="texto-calculo">Juros totais (Dividido por 100): 120.000 / 100 = <strong>R$ 1.200,00</strong></div>
-            <div class="formula-destaque">Montante Total = R$ 6.200,00</div>
-            <div class="texto-calculo" style="text-align:center;">Divisão final: R$ 6.200,00 / 6 meses = <strong>R$ 1.033,33 por mês</strong></div>
-            <button class="btn-avancar" onclick="proximoSlide('slide-q3', 'slide-q4')">Próxima Questão</button>
-        </div>
-    </div>
-
-    <div class="slide" id="slide-q4">
-        <div class="contador-questoes">QUESTÃO 4 DE 10</div>
-        <h2>Um empréstimo rápido de R$ 600,00 gerou cobrança de taxa de 10% ao mês por 2 meses. Qual o valor final dividido em 2 parcelas?</h2>
-        <div class="grid-respostas" id="respostas-q4">
-            <button class="btn-resposta vermelho" onclick="conferir('q4', false, this)">R$ 330,00</button>
-            <button class="btn-resposta azul" onclick="conferir('q4', false, this)">R$ 350,00</button>
-            <button class="btn-resposta amarelo" onclick="conferir('q4', false, this)">R$ 400,00</button>
-            <button class="btn-resposta verde" onclick="conferir('q4', true, this)">R$ 360,00</button>
-        </div>
-        <div class="painel-solucao" id="solucao-q4">
-            <div class="solucao-titulo">Gabarito Técnico</div>
-            <div class="texto-calculo">Multiplicação inicial: 600 × 10 × 2 = 12.000</div>
-            <div class="texto-calculo">Juros totais (Dividido por 100): 12.000 / 100 = <strong>R$ 120,00</strong></div>
-            <div class="formula-destaque">Montante Total = R$ 720,00</div>
-            <div class="texto-calculo" style="text-align:center;">Divisão final: R$ 720,00 / 2 meses = <strong>R$ 360,00 por mês</strong></div>
-            <button class="btn-avancar" onclick="proximoSlide('slide-q4', 'slide-q5')">Próxima Questão</button>
-        </div>
-    </div>
-
-    <div class="slide" id="slide-q5">
-        <div class="contador-questoes">QUESTÃO 5 DE 10</div>
-        <h2>A aquisição de uma ferramenta de R$ 3.000,00 sob taxa simples de 2% ao mês correu pelo prazo de 5 meses. Qual o valor das parcelas?</h2>
-        <div class="grid-respostas" id="respostas-q5">
-            <button class="btn-resposta vermelho" onclick="conferir('q5', false, this)">R$ 630,00</button>
-            <button class="btn-resposta azul" onclick="conferir('q5', true, this)">R$ 660,00</button>
-            <button class="btn-resposta amarelo" onclick="conferir('q5', false, this)">R$ 600,00</button>
-            <button class="btn-resposta verde" onclick="conferir('q5', false, this)">R$ 690,00</button>
-        </div>
-        <div class="painel-solucao" id="solucao-q5">
-            <div class="solucao-titulo">Gabarito Técnico</div>
-            <div class="texto-calculo">Multiplicação inicial: 3.000 × 2 × 5 = 30.000</div>
-            <div class="texto-calculo">Juros totais (Dividido por 100): 30.000 / 100 = <strong>R$ 300,00</strong></div>
-            <div class="formula-destaque">Montante Total = R$ 3.300,00</div>
-            <div class="texto-calculo" style="text-align:center;">Divisão final: R$ 3.300,00 / 5 meses = <strong>R$ 660,00 por mês</strong></div>
-            <button class="btn-avancar" onclick="proximoSlide('slide-q5', 'slide-q6')">Próxima Questão</button>
-        </div>
-    </div>
-
-    <div class="slide" id="slide-q6">
-        <div class="contador-questoes">QUESTÃO 6 DE 10</div>
-        <h2>Financiamento de R$ 8.000,00 feito a juros simples de 3% ao mês para pagar em 4 parcelas mensais. Qual o valor fixo da parcela?</h2>
-        <div class="grid-respostas" id="respostas-q6">
-            <button class="btn-resposta vermelho" onclick="conferir('q6', false, this)">R$ 2.120,00</button>
-            <button class="btn-resposta azul" onclick="conferir('q6', false, this)">R$ 2.050,00</button>
-            <button class="btn-resposta amarelo" onclick="conferir('q6', true, this)">R$ 2.240,00</button>
-            <button class="btn-resposta verde" onclick="conferir('q6', false, this)">R$ 2.300,00</button>
-        </div>
-        <div class="painel-solucao" id="solucao-q6">
-            <div class="solucao-titulo">Gabarito Técnico</div>
-            <div class="texto-calculo">Multiplicação inicial: 8.000 × 3 × 4 = 96.000</div>
-            <div class="texto-calculo">Juros totais (Dividido por 100): 96.000 / 100 = <strong>R$ 960,00</strong></div>
-            <div class="formula-destaque">Montante Total = R$ 8.960,00</div>
-            <div class="texto-calculo" style="text-align:center;">Divisão final: R$ 8.960,00 / 4 meses = <strong>R$ 2.240,00 por mês</strong></div>
-            <button class="btn-avancar" onclick="proximoSlide('slide-q6', 'slide-q7')">Próxima Questão</button>
-        </div>
-    </div>
-
-    <div class="slide" id="slide-q7">
-        <div class="contador-questoes">QUESTÃO 7 DE 10</div>
-        <h2>Uma dívida comercial de R$ 1.500,00 com acréscimo de juros simples de 6% ao mês por 3 meses será quitada em 3 vezes. Qual o valor da parcela?</h2>
-        <div class="grid-respostas" id="respostas-q7">
-            <button class="btn-resposta vermelho" onclick="conferir('q7', true, this)">R$ 590,00</button>
-            <button class="btn-resposta azul" onclick="conferir('q7', false, this)">R$ 560,00</button>
-            <button class="btn-resposta amarelo" onclick="conferir('q7', false, this)">R$ 530,00</button>
-            <button class="btn-resposta verde" onclick="conferir('q7', false, this)">R$ 610,00</button>
-        </div>
-        <div class="painel-solucao" id="solucao-q7">
-            <div class="solucao-titulo">Gabarito Técnico</div>
-            <div class="texto-calculo">Multiplicação inicial: 1.500 × 6 × 3 = 27.000</div>
-            <div class="texto-calculo">Juros totais (Dividido por 100): 27.000 / 100 = <strong>R$ 270,00</strong></div>
-            <div class="formula-destaque">Montante Total = R$ 1.770,00</div>
-            <div class="texto-calculo" style="text-align:center;">Divisão final: R$ 1.770,00 / 3 meses = <strong>R$ 590,00 por mês</strong></div>
-            <button class="btn-avancar" onclick="proximoSlide('slide-q7', 'slide-q8')">Próxima Questão</button>
-        </div>
-    </div>
-
-    <div class="slide" id="slide-q8">
-        <div class="contador-questoes">QUESTÃO 8 DE 10</div>
-        <h2>Crédito emergencial de R$ 4.000,00 com taxa simples de 5% ao mês por 5 meses. Qual o valor das parcelas mensais iguais?</h2>
-        <div class="grid-respostas" id="respostas-q8">
-            <button class="btn-resposta vermelho" onclick="conferir('q8', false, this)">R$ 960,00</button>
-            <button class="btn-resposta azul" onclick="conferir('q8', true, this)">R$ 1.000,00</button>
-            <button class="btn-resposta amarelo" onclick="conferir('q8', false, this)">R$ 1.050,00</button>
-            <button class="btn-resposta verde" onclick="conferir('q8', false, this)">R$ 900,00</button>
-        </div>
-        <div class="painel-solucao" id="solucao-q8">
-            <div class="solucao-titulo">Gabarito Técnico</div>
-            <div class="texto-calculo">Multiplicação inicial: 4.000 × 5 × 5 = 100.000</div>
-            <div class="texto-calculo">Juros totais (Dividido por 100): 100.000 / 100 = <strong>R$ 1.000,00</strong></div>
-            <div class="formula-destaque">Montante Total = R$ 5.000,00</div>
-            <div class="texto-calculo" style="text-align:center;">Divisão final: R$ 5.000,00 / 5 meses = <strong>R$ 1.000,00 por mês</strong></div>
-            <button class="btn-avancar" onclick="proximoSlide('slide-q8', 'slide-q9')">Próxima Questão</button>
-        </div>
-    </div>
-
-    <div class="slide" id="slide-q9">
-        <div class="contador-questoes">QUESTÃO 9 DE 10</div>
-        <h2>Capital de R$ 2.500,00 tomado sob juros simples à taxa de 4% ao mês por 2 meses. Qual o valor final das duas parcelas?</h2>
-        <div class="grid-respostas" id="respostas-q9">
-            <button class="btn-resposta vermelho" onclick="conferir('q9', false, this)">R$ 1.300,00</button>
-            <button class="btn-resposta azul" onclick="conferir('q9', false, this)">R$ 1.400,00</button>
-            <button class="btn-resposta amarelo" onclick="conferir('q9', true, this)">R$ 1.350,00</button>
-            <button class="btn-resposta verde" onclick="conferir('q9', false, this)">R$ 1.250,00</button>
-        </div>
-        <div class="painel-solucao" id="solucao-q9">
-            <div class="solucao-titulo">Gabarito Técnico</div>
-            <div class="texto-calculo">Multiplicação inicial: 2.500 × 4 × 2 = 20.000</div>
-            <div class="texto-calculo">Juros totais (Dividido por 100): 20.000 / 100 = <strong>R$ 200,00</strong></div>
-            <div class="formula-destaque">Montante Total = R$ 2.700,00</div>
-            <div class="texto-calculo" style="text-align:center;">Divisão final: R$ 2.700,00 / 2 meses = <strong>R$ 1.350,00 por mês</strong></div>
-            <button class="btn-avancar" onclick="proximoSlide('slide-q9', 'slide-q10')">Próxima Questão</button>
-        </div>
-    </div>
-
-    <div class="slide" id="slide-q10">
-        <div class="contador-questoes">QUESTÃO 10 DE 10</div>
-        <h2>Atraso em duplicata de R$ 12.000,00 com incidência de juros simples de 2% ao mês por 3 meses. Qual o valor dividido em 3 parcelas?</h2>
-        <div class="grid-respostas" id="respostas-q10">
-            <button class="btn-resposta vermelho" onclick="conferir('q10', false, this)">R$ 4.150,00</button>
-            <button class="btn-resposta azul" onclick="conferir('q10', false, this)">R$ 4.300,00</button>
-            <button class="btn-resposta amarelo" onclick="conferir('q10', false, this)">R$ 4.080,00</button>
-            <button class="btn-resposta verde" onclick="conferir('q10', true, this)">R$ 4.240,00</button>
-        </div>
-        <div class="painel-solucao" id="solucao-q10">
-            <div class="solucao-titulo">Gabarito Técnico</div>
-            <div class="texto-calculo">Multiplicação inicial: 12.000 × 2 × 3 = 72.000</div>
-            <div class="texto-calculo">Juros totais (Dividido por 100): 72.000 / 100 = <strong>R$ 720,00</strong></div>
-            <div class="formula-destaque">Montante Total = R$ 12.720,00</div>
-            <div class="texto-calculo" style="text-align:center;">Divisão final: R$ 12.720,00 / 3 meses = <strong>R$ 4.240,00 por mês</strong></div>
-            <button class="btn-avancar" onclick="proximoSlide('slide-q10', 'slide-fim')">Concluir Desafio</button>
-        </div>
-    </div>
-
-    <div class="slide" id="slide-fim">
-        <h1>DESAFIO CONCLUÍDO!</h1>
-        <p class="subtitulo" style="font-size: 45px;">Domínio do Regime de Juros Simples e Parcelamento Comercial.</p>
-        <div style="font-size: 120px; margin-bottom: 40px;">💼📈</div>
-        <button class="btn-avancar" style="background-color: #10b981; box-shadow: 0 6px 0 #047857;" onclick="window.location.reload()">Reiniciar Desafio</button>
-    </div>
-
-    <script>
-        function proximoSlide(idAtual, idProximo) {
-            document.getElementById(idAtual).classList.remove('ativo');
-            document.getElementById(idProximo).classList.add('ativo');
-        }
-
-        function conferir(questao, correto, botaoElemento) {
-            let todosBotoes = document.querySelectorAll(`#respostas-${questao} .btn-resposta`);
-            
-            todosBotoes.forEach(btn => {
-                if(btn === botaoElemento && correto) {
-                    btn.classList.add('acertou');
-                } else if(btn === botaoElemento && !correto) {
-                    btn.style.backgroundColor = '#4b5563'; // escurece o botão errado clicado
-                } else {
-                    btn.classList.add('errou'); // esmaece as alternativas não clicadas
-                }
-            });
-
-            // Mostra o quadro explicativo com o cálculo estruturado após 800ms
-            setTimeout(() => {
-                document.getElementById(`respostas-${questao}`).style.display = 'none';
-                document.getElementById(`solucao-${questao}`).style.display = 'block';
-            }, 800);
-        }
-    </script>
-</body>
-</html>
+        <div class="contador">1 DE 10</div>
+        <h2>R$ 1.000,00 a 5% ao mês por 2 meses. Valor da parcela?</h2>
+        <div class="grid-respostas" id="resp-q1">
+            <button class="btn-resposta vermelho" onclick="check('q1', false, this)">R$ 525,00</button>
+            <button class="btn-resposta azul" onclick="check('
